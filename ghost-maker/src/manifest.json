@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "QEM Ghost Maker (Denny)",
+  "version": "0.1.2",
+  "description": "Makes Nifty AI Studio ghost mannequin covers on photo 1, one item at a time, in place of Chrome Claude.",
+  "permissions": ["storage", "tabs", "scripting", "alarms", "clipboardWrite"],
+  "host_permissions": [
+    "https://app.nifty.ai/*",
+    "https://raw.githubusercontent.com/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "QEM Ghost Maker" },
+  "content_scripts": [{
+    "matches": ["https://*.nifty.ai/*"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }]
+}
