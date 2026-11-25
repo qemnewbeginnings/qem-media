@@ -1,41 +1,5 @@
 {
- "updated": "2026-11-25T17:51Z",
+ "updated": "2026-11-25T22:50Z",
  "note": "Items labeled Chrome: ghost in Nifty. Written by the cloud ghost check; read by the QEM Ghost Maker add-on.",
- "items": [
-  {
-   "id": "41637e98-bf90-4758-84de-3b8fe41d8f7d",
-   "sku": "J 359",
-   "title": "VIP jeans",
-   "mode": "ghost",
-   "count": 1
-  },
-  {
-   "id": "c35c756b-6328-4554-8c64-d53635cf7487",
-   "sku": "422",
-   "title": "Inner Sanctum tank",
-   "mode": "ghost",
-   "count": 1
-  },
-  {
-   "id": "db33db2d-f4e3-4d48-bc18-7353f0a47922",
-   "sku": "J 409",
-   "title": "Lucky Lolita jeans",
-   "mode": "ghost",
-   "count": 1
-  },
-  {
-   "id": "e3ce81a4-4929-4ac6-b772-7c7538210ab7",
-   "sku": "J 399",
-   "title": "Lucky Sweet N Low jeans",
-   "mode": "ghost",
-   "count": 1
-  },
-  {
-   "id": "e7cb2c58-5785-4cd7-bfde-b0e5329073f7",
-   "sku": "431",
-   "title": "Arizona denim vest",
-   "mode": "ghost",
-   "count": 1
-  }
- ]
+ "items": []
 }
