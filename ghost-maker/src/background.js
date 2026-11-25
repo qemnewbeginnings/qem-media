@@ -6,11 +6,11 @@ const GAP_MIN = 45, GAP_MAX = 90; // seconds between items
 const DEFAULT_CAP = 10;           // ghosts a day (5 credits each = 50 credits)
 // Stay out of the way of Chrome Claude runs (9:30am, 11:45am, 1:45pm, 2:30pm, 3:45pm, 5pm, 9pm, 9:30pm) and of the night.
 const BLACKOUT = [[9*60+15, 10*60+20], [11*60+30, 12*60+40], [13*60+30, 15*60+20], [15*60+30, 16*60+40], [16*60+45, 17*60+50]];
-const OPEN_FROM = 8*60, OPEN_TO = 20*60+45;
+const OPEN_FROM = 8*60, OPEN_TO = 21*60; // 8am to 9pm (9pm = Chrome Claude)
 const mins = d => d.getHours()*60 + d.getMinutes();
 function quietReason(d = new Date()) {
   const m = mins(d);
-  if (m < OPEN_FROM || m >= OPEN_TO) return 'outside ghost hours (8am to 8:45pm)';
+  if (m < OPEN_FROM || m >= OPEN_TO) return 'outside ghost hours (8am to 9pm)';
   for (const [a, b] of BLACKOUT) if (m >= a && m < b) return 'Chrome Claude time';
   return '';
 }

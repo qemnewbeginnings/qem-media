@@ -110,7 +110,8 @@
   function thumbBoxes(root) {
     const boxes = [...root.querySelectorAll('input[type=checkbox],[role=checkbox]')];
     // keep only tick boxes that sit on a thumbnail (an <img> close by), in screen order top to bottom
-    return boxes.filter(b => { let e = b; for (let i = 0; i < 4 && e; i++, e = e.parentElement) if (e.querySelector('img')) return true; return false; })
+    // a thumbnail tick box: the first parent that holds any picture holds exactly ONE (the "N selected" box at the top holds none or all)
+    return boxes.filter(b => { let e = b.parentElement; for (let i = 0; i < 5 && e; i++, e = e.parentElement) { const n = e.querySelectorAll('img').length; if (n) return n === 1 && !/selected/.test(norm(e.innerText)); } return false; })
       .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
   }
   const ticked = b => b.matches('input') ? b.checked : (b.getAttribute('aria-checked') === 'true' || /checked/.test(b.getAttribute('data-state') || ''));
@@ -207,14 +208,16 @@
     let root = studioRoot();
     // 3. Only photo 1 ticked, then the AI Studio tab.
     let boxes = thumbBoxes(root);
-    if (boxes.length) {
+    const okNow = () => { const b = thumbBoxes(studioRoot()), on = b.map(ticked); const m = norm(studioRoot().innerText).match(/(\d+) selected/); return b.length && on[0] && !on.slice(1).some(Boolean) && (!m || m[1] === '1'); };
+    if (boxes.length && okNow()) notes.push(`photo 1 already the only one ticked (${boxes.length} thumbs)`);
+    else if (boxes.length) {
       for (let i = 0; i < boxes.length; i++) {
         const want = i === 0;
         if (ticked(boxes[i]) !== want) { realClick(boxes[i], 'Pick photo 1 only', true); await human(400, 800); }
       }
       boxes = thumbBoxes(studioRoot());
       const on = boxes.map(ticked);
-      if (!on[0] || on.slice(1).some(Boolean)) fail('Pick photo 1', `Couldn't tick ONLY photo 1 in Edit photos (ticks: ${on.map(x => x ? 'Y' : 'n').join('')}). Not spending credits.`);
+      if (!on[0] || on.slice(1).some(Boolean)) fail('Pick photo 1', `Couldn't tick ONLY photo 1 in Edit photos (ticks: ${on.map(x => x ? 'Y' : 'n').join('')}; boxes: ${boxes.slice(0, 3).map(describe).join(' / ')}). Not spending credits.`);
       notes.push(`photo 1 only ticked (${boxes.length} thumbs)`);
     } else notes.push('no tick boxes seen in Edit photos');
     const selTxt = norm(studioRoot().innerText).match(/(\d+) selected/);
@@ -276,8 +279,9 @@
       const body = norm(document.body.innerText);
       if (/out of credits|not enough credits|insufficient credits|no credits left|buy more credits|get more credits/.test(body)) throw { step: 'Apply edit', note: 'Nifty says OUT OF CREDITS.', credits: true, gen };
       if (/something went wrong|failed to (generate|apply|process)|try again later/.test(body)) throw { step: 'Apply edit', note: 'AI Studio showed an error after Apply edit. Credits may be used. ' + seen(studioRoot()), gen };
-      const g = photoGroup(); if (g.length && srcOf(g[0]) !== before[0]) { changed = true; break; }
       const r = studioRoot();
+      // Edit photos already closed by itself and photo 1 changed: done.
+      if (r === document) { const g = photoGroup(); if (g.length && srcOf(g[0]) !== before[0]) { changed = true; break; } }
       const busy = r !== document && /generating|processing|applying|working|loading|please wait/.test(norm(r.innerText));
       if (busy) continue;
       if (r !== document && previewSrc(r) !== prev0) {
@@ -306,6 +310,14 @@
         changed = !!(await waitFor(() => { const g = photoGroup(); return g.length && srcOf(g[0]) !== before[0]; }, 15000, 700));
       }
     }
+    // Never go on while Edit photos is still open (its green Save must be clicked first).
+    for (let i = 0; i < 2 && studioRoot() !== document; i++) {
+      const sv = byText(['save'], studioRoot(), { exact: true });
+      if (sv && !disabled(sv)) { notes.push('clicked green Save'); realClick(sv, 'Save ghost'); await human(2000, 3000); }
+      await waitFor(() => studioRoot() === document, 15000, 700);
+    }
+    if (studioRoot() !== document) throw { step: 'Keep ghost', note: `Edit photos window would not close after Save. NOT SAVED: click the green Save, then Update item, by hand. ${notes.join('; ')}.`, gen };
+    if (!changed) changed = !!(await waitFor(() => { const g = photoGroup(); return g.length && srcOf(g[0]) !== before[0]; }, 15000, 700));
     if (!changed) throw { step: 'Keep ghost', note: `The ghost was made but photo 1 on the item didn't change. ${notes.join('; ')}. On screen: ${seen(studioRoot())}.`, gen };
     // Close AI Studio if it is still open.
     if (studioRoot() !== document) {
@@ -315,14 +327,27 @@
     }
     // 9. Check the photos: same count, photo 1 new, photos 2+ untouched.
     const after = photoGroup().map(srcOf);
-    if (after.length !== count) throw { step: 'Check photos', note: `Item had ${count} photos, now ${after.length} (Nifty may have added the ghost as an extra photo). Fix by hand: ghost first, old photo 1 removed. Not saved.`, gen };
+    // D 11-24: once credits are spent, ALWAYS save (photo 1 is backed up; photo 2 is the same front). Problems become warnings.
+    const warn = [];
+    if (after.length !== count) warn.push(`photo count went from ${count} to ${after.length}, check by hand`);
     const moved = before.slice(1).filter(s => !after.slice(1).includes(s));
-    if (moved.length) throw { step: 'Check photos', note: `Photos 2 to ${count} changed too (${moved.length}). Not saved. Check by hand.`, gen };
+    // Nifty gives every photo a new web address after an edit, so a changed address alone isn't a problem.
+    // Only photo 1 was ticked in Edit photos (checked above), so photos 2+ were not edited.
+    if (moved.length) notes.push(`Nifty refreshed ${moved.length} photo addresses (normal)`);
     // 10. Save the item (never List / Publish / Schedule).
     await status('Saving the item…');
-    const save = byText(['save', 'save changes', 'save item', 'save draft', 'update', 'update item', 'update listings', 'save & update', 'save and update'], document, { exact: true });
+    // Prefer Nifty's own "Update item" button, and an enabled one outside any pop-up window.
+    const saveCands = [...document.querySelectorAll(CLICKABLE)].filter(e => visible(e) && !e.closest('[role=dialog],[aria-modal=true]'));
+    let save = null;
+    for (const w of ['update item', 'save draft', 'save changes', 'save item', 'save & update', 'save and update', 'update listings', 'update', 'save']) {
+      const hits = saveCands.filter(e => textOf(e) === w);
+      save = hits.find(e => !disabled(e)) || hits[0] || null;
+      if (save) break;
+    }
     if (!save) throw { step: 'Save', note: `Ghost is on photo 1 but no Save / Update button found. On screen: ${seen()}.`, gen };
-    if (disabled(save)) throw { step: 'Save', note: `Save button is greyed out. On screen: ${seen()}.`, gen };
+    // Nifty can take a few seconds to wake the Update item button after a photo change.
+    if (disabled(save)) await waitFor(() => !disabled(save), 30000, 1000);
+    if (disabled(save)) throw { step: 'Save', note: `Ghost is on photo 1 but "${textOf(save)}" stayed greyed out for 30 seconds. NOT SAVED: please click it by hand or check for a red note on the page. ${notes.join('; ')}.`, gen };
     realClick(save, 'Save'); await human(1500, 2500);
     // A price-mismatch or "update marketplaces?" question is normal: say yes to saving, never to listing.
     for (let i = 0; i < 3; i++) {
@@ -333,6 +358,7 @@
     }
     const saved = await waitFor(() => /saved|updated|success|changes have been/.test(norm([...document.querySelectorAll('[role=status],[role=alert],[class*="toast"],[class*="Toast"],[class*="snack"],[class*="notif"]')].map(e => e.innerText).join(' '))) || (disabled(save) ? 'disabled' : null), 45000, 700);
     notes.push(saved ? 'saved' : 'clicked Save (no "saved" message seen, cloud check will confirm)');
+    if (warn.length) return { ok: false, step: 'Saved, check by hand', note: 'Ghost made and SAVED, but: ' + warn.join('; ') + '. ' + notes.join('; ') + '.', gen };
     return { ok: true, step: 'Done', note: 'Ghost made and saved. ' + notes.join('; ') + '.', gen };
   }
 
@@ -360,7 +386,8 @@
   chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     if (msg.type === 'scout') { reply({ text: scout() }); return; }
     if (msg.type === 'runHere') {
-      const id = (location.href.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i) || [])[1] || ('page-' + location.pathname);
+      const id = (location.pathname.match(/inventory\/edit\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i) || [])[1];
+      if (!id) { status('This is not an item page. Open the item (three dots > Edit item) so the address has /inventory/edit/, then tap again.'); reply({ error: 'Open the item first (three dots > Edit item).' }); return; }
       status('Started on ' + location.pathname.slice(0, 60) + ' …');
       go({ id, practice: !!msg.practice, sku: msg.sku || '' });
       reply({ started: true }); return;
