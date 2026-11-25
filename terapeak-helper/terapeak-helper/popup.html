@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{font:14px system-ui;width:340px;margin:12px;color:#222}
+h1{font-size:16px;margin:0 0 8px;color:#0b6e4f}
+button{font-size:14px;padding:8px 10px;margin:4px 4px 0 0;border-radius:6px;border:1px solid #888;cursor:pointer;background:#fff}
+.main{background:#0b6e4f;color:#fff;border-color:#0b6e4f}
+.row{margin:8px 0}.box{background:#eef7f3;border-radius:8px;padding:8px;margin-top:8px}
+.small{font-size:12px}.big{font-size:20px;font-weight:700}
+input[type=text]{width:95%;font-size:14px;padding:4px}input[type=number]{width:48px;font-size:14px}
+</style></head><body>
+<h1>📊 QEM Terapeak Helper</h1>
+<div class="box" style="margin-top:0">
+  <div style="font-weight:700">Try one look-up:</div>
+  <div class="row"><input type="text" id="q" placeholder="words, e.g. Eddie Bauer henley sweater"></div>
+  <div class="row small"><label><input type="radio" name="c" value="used" checked> Used</label> <label><input type="radio" name="c" value="new"> New</label> <label><input type="radio" name="c" value=""> Any</label></div>
+  <div class="row"><button id="try" class="main">Look it up</button> <button id="scout">Scout this page</button></div>
+</div>
+<div class="box">
+  <label style="font-weight:700"><input type="checkbox" id="auto"> Auto: do Christina's Terapeak list</label>
+  <div class="small" style="margin-top:4px">Checks every 15 min, 7am to 10pm, in its own window. Read-only. Stops and turns off if eBay asks to sign in or check you're human.</div>
+  <div class="row small">Look-ups a day: <input type="number" id="cap" min="1" max="100"> · Today: <b id="today">0</b></div>
+  <div class="row" style="margin-bottom:0"><button id="checknow">Check list now</button></div>
+</div>
+<div class="row"><button id="stop">Stop</button><button id="clearbad">Clear problems</button></div>
+<div class="box"><div>Waiting: <span class="big" id="left">0</span> · Done today: <span class="big" id="done">0</span> · Problems: <span class="big" id="bad">0</span></div>
+<div id="status" style="margin-top:6px">Idle</div></div>
+<div class="row"><button id="copy">Copy report</button></div>
+<script src="popup.js"></script></body></html>
