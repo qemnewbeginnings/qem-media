@@ -394,6 +394,23 @@
     }
   });
 
+  // Credits: read Settings > Subscription ("Monthly credits ... N remaining of 500", "Bonus credits ... N remaining of 100").
+  function readCredits() {
+    const txt = (document.body.innerText || '').replace(/\s+/g, ' ');
+    const grab = word => { const m = txt.match(new RegExp(word + ' credits[\\s\\S]{0,80}?(\\d[\\d,]*)\\s*remaining of\\s*(\\d[\\d,]*)', 'i')); return m ? +m[1].replace(/,/g, '') : null; };
+    return { monthly: grab('Monthly'), bonus: grab('Bonus') };
+  }
+  if (/^\/settings\/subscription/.test(location.pathname)) {
+    (async () => {
+      const r = await send({ type: 'creditsJob' });
+      if (!r || !r.want) return;
+      let c = { monthly: null, bonus: null };
+      for (let i = 0; i < 20; i++) { await sleep(1000); c = readCredits(); if (c.monthly !== null) break; }
+      await send({ type: 'credits', monthly: c.monthly, bonus: c.bonus || 0, ok: c.monthly !== null });
+    })();
+    return;
+  }
+
   // Auto mode: the background opens the item page; ask if there is a job for this page.
   (async () => {
     await sleep(2500);

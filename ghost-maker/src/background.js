@@ -4,6 +4,16 @@ const EDIT_URL = id => 'https://app.nifty.ai/inventory/edit/' + id;
 const CHECK_MIN = 20;
 const GAP_MIN = 45, GAP_MAX = 90; // seconds between items
 const DEFAULT_CAP = 10;           // ghosts a day (5 credits each = 50 credits)
+const SUBS_URL = 'https://app.nifty.ai/settings/subscription';
+const GHOST_COST = 5;
+// Google Form "QEM ghost credits" (one short-answer question). Filled in 11-24; empty = no report.
+const FORM_POST = 'https://docs.google.com/forms/d/e/1FAIpQLSfmmdzvJ0m3RE2JZpAH2NeFM4asDwEUWghDrEVpFXyh6gf8VQ/formResponse';
+const FORM_ENTRY = 'entry.573921451';
+async function reportCredits(c, when) {
+  if (!FORM_POST || !FORM_ENTRY) return;
+  const line = `monthly=${c.monthly} bonus=${c.bonus} total=${c.monthly + c.bonus} when=${when} at=${new Date().toISOString()}`;
+  try { await fetch(FORM_POST, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ [FORM_ENTRY]: line }) }); } catch (e) {}
+}
 // Stay out of the way of Chrome Claude runs (9:30am, 11:45am, 1:45pm, 2:30pm, 3:45pm, 5pm, 9pm, 9:30pm) and of the night.
 const BLACKOUT = [[9*60+15, 10*60+20], [11*60+30, 12*60+40], [13*60+30, 15*60+20], [15*60+30, 16*60+40], [16*60+45, 17*60+50]];
 const OPEN_FROM = 8*60, OPEN_TO = 21*60; // 8am to 9pm (9pm = Chrome Claude)
@@ -40,8 +50,8 @@ async function checkQueue(manual) {
   const stamp = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   if (!q.length) { await setStatus('Auto is on. No ghosts waiting (checked ' + stamp + ').'); return; }
   if (why) { await setStatus(q.length + " ghosts waiting, but it's " + why + '.'); return; }
-  await chrome.storage.local.set({ queue: q, results: [], running: true, day });
-  tabId = null; await next();
+  await chrome.storage.local.set({ queue: q, results: [], running: true, day, phase: 'before' });
+  tabId = null; await openTab(SUBS_URL, 'Checking AI credits…');
 }
 const ensureAlarm = () => chrome.alarms.create('ghostQueue', { periodInMinutes: CHECK_MIN });
 chrome.runtime.onInstalled.addListener(ensureAlarm);
@@ -51,19 +61,22 @@ chrome.alarms.onAlarm.addListener(a => { if (a.name === 'ghostQueue') checkQueue
 async function closeWindow() {
   if (winId !== null) { try { await chrome.windows.remove(winId); } catch (e) {} winId = null; tabId = null; }
 }
+async function openTab(url, msg) {
+  await setStatus(msg);
+  if (tabId !== null) { try { await chrome.tabs.update(tabId, { url }); return; } catch (e) { tabId = null; } }
+  // Its own window behind yours, so it never takes over the screen or your own Nifty tab.
+  const w = await chrome.windows.create({ url, focused: false, width: 1300, height: 950 });
+  winId = w.id; tabId = w.tabs[0].id;
+}
 async function next() {
   const s = await chrome.storage.local.get(['queue', 'running']);
   if (!s.running) return;
   const q = s.queue || [];
-  if (!q.length) { await chrome.storage.local.set({ running: false }); await closeWindow(); await setStatus('All done. Izzy checks the new ghosts.'); return; }
+  if (!q.length) { await chrome.storage.local.set({ phase: 'after' }); await openTab(SUBS_URL, 'All ghosts done. Reading credits left…'); return; }
   const why = quietReason();
   if (why) { await chrome.storage.local.set({ running: false }); await closeWindow(); await setStatus('Paused for ' + why + '. ' + q.length + ' left; picks up again later.'); return; }
   const it = q[0];
-  await setStatus('Opening Nifty for ' + (it.sku || it.title || it.id) + '…');
-  if (tabId !== null) { try { await chrome.tabs.update(tabId, { url: EDIT_URL(it.id) }); return; } catch (e) { tabId = null; } }
-  // Its own window behind yours, so it never takes over the screen or your own Nifty tab.
-  const w = await chrome.windows.create({ url: EDIT_URL(it.id), focused: false, width: 1300, height: 950 });
-  winId = w.id; tabId = w.tabs[0].id;
+  await openTab(EDIT_URL(it.id), 'Opening Nifty for ' + (it.sku || it.title || it.id) + '…');
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
@@ -71,6 +84,33 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     if (msg.type === 'checkNow') { await checkQueue(true); reply({}); return; }
     if (msg.type === 'setAuto') { await chrome.storage.local.set({ auto: !!msg.on }); ensureAlarm(); if (msg.on) await checkQueue(false); reply({}); return; }
     if (msg.type === 'setStatus') { await setStatus(msg.text); reply({}); return; }
+    if (msg.type === 'creditsJob') {
+      const s = await chrome.storage.local.get(['running', 'phase']);
+      reply({ want: !!(s.running && s.phase && sender.tab && sender.tab.id === tabId) }); return;
+    }
+    if (msg.type === 'credits') {
+      const s = await chrome.storage.local.get(['queue', 'phase']);
+      const c = { monthly: msg.monthly || 0, bonus: msg.bonus || 0 };
+      const total = c.monthly + c.bonus;
+      if (msg.ok) await chrome.storage.local.set({ credits: { ...c, total, at: new Date().toISOString() } });
+      await reportCredits(c, s.phase || '');
+      if (s.phase === 'after') {
+        await chrome.storage.local.set({ running: false, phase: '' }); await closeWindow();
+        await setStatus('All done. ' + (msg.ok ? total + ' AI credits left. ' : '') + 'Izzy checks the new ghosts.'); reply({}); return;
+      }
+      // before the batch
+      await chrome.storage.local.set({ phase: '' });
+      if (!msg.ok) { await setStatus("Couldn't read the credits, going ahead."); await next(); reply({}); return; }
+      const can = Math.floor(total / GHOST_COST);
+      if (can < 1) {
+        await chrome.storage.local.set({ running: false, queue: [] }); await closeWindow();
+        await setStatus(`Out of AI credits (${total} left). Ghosts wait for the renewal. Auto stays on.`); reply({}); return;
+      }
+      const q = (s.queue || []).slice(0, can);
+      await chrome.storage.local.set({ queue: q });
+      await setStatus(`${total} AI credits left (${can} ghosts). Starting ${q.length}…`);
+      await next(); reply({}); return;
+    }
     if (msg.type === 'getJob') {
       const s = await chrome.storage.local.get(['queue', 'running']);
       const it = s.running && (s.queue || [])[0];
