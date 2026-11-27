@@ -1,9 +1,11 @@
 // QEM Terapeak Helper - background. Reads Christina's Terapeak list, looks each one up on
 // Terapeak (sold tab, then active tab) in its own window, and reports the numbers. Read-only.
-const QUEUE_URL = 'https://raw.githubusercontent.com/qemnewbeginnings/qem-media/refs/heads/claude/project-thread-blxg8i/terapeak-queue/queue.json';
+const QBASE = 'https://raw.githubusercontent.com/qemnewbeginnings/qem-media/refs/heads/claude/project-thread-blxg8i/terapeak-queue/';
+// Christina's items first, then Brand research's brands (separate files so they never overwrite each other).
+const QUEUE_URLS = [QBASE + 'queue.json', QBASE + 'brands.json'];
 const CHECK_MIN = 15;
 const GAP_MIN = 40, GAP_MAX = 100;   // seconds between look-ups, so eBay sees a normal pace
-const DEFAULT_CAP = 40;              // look-ups a day
+const DEFAULT_CAP = 80;              // look-ups a day (Christina + 25 brands)
 const OPEN_FROM = 7*60, OPEN_TO = 22*60; // 7am to 10pm
 // Google Form "QEM Terapeak Results" (one paragraph question). Empty = no report yet (Copy report still works).
 const FORM_POST = '';
@@ -38,11 +40,16 @@ async function checkQueue(manual) {
   const left = cap - day.n;
   if (left <= 0) { await setStatus(`Auto is on. Today's limit reached (${day.n} look-ups). More tomorrow.`); return; }
   let list = [];
-  try {
-    const r = await fetch(QUEUE_URL + '?t=' + Date.now(), { cache: 'no-store' });
-    if (!r.ok) throw new Error('list ' + r.status);
-    const j = await r.json(); list = Array.isArray(j) ? j : (j.items || []);
-  } catch (e) { await setStatus("Couldn't read Christina's Terapeak list (" + String(e).slice(0, 60) + '). Will try again.'); return; }
+  let bad = 0;
+  for (const u of QUEUE_URLS) {
+    try {
+      const r = await fetch(u + '?t=' + Date.now(), { cache: 'no-store' });
+      if (r.status === 404) continue;
+      if (!r.ok) throw new Error('list ' + r.status);
+      const j = await r.json(); list = list.concat(Array.isArray(j) ? j : (j.items || []));
+    } catch (e) { bad++; }
+  }
+  if (bad === QUEUE_URLS.length) { await setStatus("Couldn't read the Terapeak lists. Will try again."); return; }
   const skip = new Set([...(s.doneIds || []), ...(s.failedIds || [])]);
   const q = list.filter(it => it.id && it.query && !skip.has(it.id)).slice(0, left);
   const stamp = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -129,7 +136,9 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         reply({}); return;
       }
       const sold = s.cur.sold || {}, act = msg.data || {};
-      const row = { ...base, ok: true, sold: sold.metrics || {}, active: act.metrics || {}, soldListings: sold.rows || [],
+      const ps = (sold.rows || []).map(r => parseFloat(String(r.price).replace(/[$,]/g, ''))).filter(n => n > 0).sort((a, b) => a - b);
+      const median = ps.length ? (ps.length % 2 ? ps[(ps.length - 1) / 2] : (ps[ps.length / 2 - 1] + ps[ps.length / 2]) / 2) : null;
+      const row = { ...base, ok: true, sold: sold.metrics || {}, soldMedianTop: median, active: act.metrics || {}, soldListings: sold.rows || [],
         activeListings: (act.rows || []).slice(0, 5), url: researchUrl(it, 'SOLD') };
       await finish(row, sender); reply({}); return;
     }

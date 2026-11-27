@@ -3,7 +3,7 @@ const key = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getM
 async function refresh() {
   const s = await chrome.storage.local.get(['queue', 'status', 'auto', 'day', 'cap', 'failedIds']);
   $('auto').checked = !!s.auto;
-  $('cap').value = s.cap || 40;
+  $('cap').value = s.cap || 80;
   const n = (s.day && s.day.date === key()) ? s.day.n : 0;
   $('today').textContent = n; $('done').textContent = n;
   $('left').textContent = (s.queue || []).length;
@@ -26,7 +26,7 @@ $('scout').onclick = async () => {
   } catch (e) { $('status').textContent = 'Reload the Terapeak page once (circle arrow), then tap Scout again.'; }
 };
 $('auto').onchange = () => chrome.runtime.sendMessage({ type: 'setAuto', on: $('auto').checked });
-$('cap').onchange = () => chrome.storage.local.set({ cap: Math.max(1, Math.min(100, +$('cap').value || 40)) });
+$('cap').onchange = () => chrome.storage.local.set({ cap: Math.max(1, Math.min(100, +$('cap').value || 80)) });
 $('checknow').onclick = () => { $('status').textContent = 'Checking the Terapeak list…'; chrome.runtime.sendMessage({ type: 'checkNow' }); };
 $('stop').onclick = async () => { await chrome.storage.local.set({ running: false, auto: false, queue: [], status: 'Stopped by you. Auto is off.' }); refresh(); };
 $('clearbad').onclick = async () => { await chrome.storage.local.set({ failedIds: [], status: 'Problems cleared. Those look-ups can run again.' }); refresh(); };
