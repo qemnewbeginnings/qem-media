@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "QEM Terapeak Helper (Christina)",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Looks up eBay Terapeak sold and active numbers for Christina's price checks, in place of Chrome Claude. Read-only.",
   "permissions": ["storage", "tabs", "scripting", "alarms", "clipboardWrite"],
   "host_permissions": [

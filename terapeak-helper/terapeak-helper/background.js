@@ -72,7 +72,7 @@ async function openTab(url, msg) {
   await setStatus(msg);
   if (tabId !== null) { try { await chrome.tabs.update(tabId, { url }); return; } catch (e) { tabId = null; } }
   // Its own window behind yours, so it never takes over the screen.
-  const w = await chrome.windows.create({ url, focused: false, width: 1300, height: 950 });
+  const w = await chrome.windows.create({ url, focused: false, width: 1900, height: 1000 });
   winId = w.id; tabId = w.tabs[0].id;
 }
 async function next() {
@@ -138,7 +138,12 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       const sold = s.cur.sold || {}, act = msg.data || {};
       const ps = (sold.rows || []).map(r => parseFloat(String(r.price).replace(/[$,]/g, ''))).filter(n => n > 0).sort((a, b) => a - b);
       const median = ps.length ? (ps.length % 2 ? ps[(ps.length - 1) / 2] : (ps[ps.length / 2 - 1] + ps[ps.length / 2]) / 2) : null;
-      const row = { ...base, ok: true, sold: sold.metrics || {}, soldMedianTop: median, active: act.metrics || {}, soldListings: sold.rows || [],
+      const num = v => parseFloat(String(v || '').replace(/[^\d.]/g, '')) || 0;
+      const sm = sold.metrics || {};
+      // If Total sold didn't show, estimate it: eBay's sell-through = sold / active listings.
+      const soldEstimate = (!sm.totalSold && sm.sellThrough && (act.metrics || {}).totalActive)
+        ? Math.round(num(sm.sellThrough) / 100 * num(act.metrics.totalActive)) : null;
+      const row = { ...base, ok: true, sold: sm, soldEstimate, soldMedianTop: median, active: act.metrics || {}, soldListings: sold.rows || [],
         activeListings: (act.rows || []).slice(0, 5), url: researchUrl(it, 'SOLD') };
       await finish(row, sender); reply({}); return;
     }

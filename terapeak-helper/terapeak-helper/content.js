@@ -20,19 +20,20 @@
     'avg listing price': 'avgListing', 'listing price range': 'listingRange', 'total active listings': 'totalActive',
     'promoted listings': 'promoted', 'avg watchers': 'avgWatchers', 'total active': 'totalActive'
   };
-  const NUM = /(\$\s?[\d,]+(\.\d+)?(\s?-\s?\$\s?[\d,]+(\.\d+)?)?|[\d,]+(\.\d+)?\s?%|[\d,]+(\.\d+)?\+?)/;
+  const NUM = /(\$\s?[\d,]+(\.\d+)?(\s?[-–—]\s?\$\s?[\d,]+(\.\d+)?)?|[\d,]+(\.\d+)?\s?%|[\d,]+(\.\d+)?\+?)/;
   function metrics() {
     const out = {};
-    const els = [...document.querySelectorAll('div,span,p,h3,h4,dt,dd,td,th,label')].filter(visible);
+    // Read hidden boxes too: Terapeak hides some summary boxes when the window is narrow.
+    const els = [...document.querySelectorAll('div,span,p,h3,h4,dt,dd,td,th,label')];
     for (const el of els) {
-      if (el.children.length > 3) continue;
-      const t = low(el.innerText);
+      if (el.children.length > 3 || el.closest('table,thead,[role=columnheader]')) continue;
+      const t = low(el.innerText || el.textContent);
       const key = LABELS[t]; if (!key || out[key]) continue;
       // Look in the label's own box (parent, then grandparent) for the number that is not the label.
       for (let box = el.parentElement, i = 0; box && i < 3; box = box.parentElement, i++) {
-        const txt = norm(box.innerText).replace(new RegExp(t.replace(/[-]/g, '\\-'), 'i'), ' ');
+        const txt = norm(box.innerText || box.textContent).replace(new RegExp(t.replace(/[-]/g, '\\-'), 'i'), ' ');
         const m = txt.match(NUM);
-        if (m && txt.length < 120) { out[key] = m[0].replace(/\s+/g, ''); break; }
+        if (m && txt.length < 200) { out[key] = m[0].replace(/\s+/g, ''); break; }
       }
     }
     return out;
@@ -79,7 +80,8 @@
     const r = rows(5); lines.push('ROWS ' + r.length + ' ' + JSON.stringify(r).slice(0, 1200));
     const heads = [...document.querySelectorAll('h1,h2,h3,[role=tab],button')].filter(visible).map(e => norm(e.innerText).slice(0, 30)).filter(Boolean);
     lines.push('BUTTONS/HEADINGS ' + [...new Set(heads)].slice(0, 40).join(' | '));
-    lines.push('TEXT ' + norm(document.body.innerText).slice(0, 1500));
+    const all = norm(document.body.textContent), i = all.search(/Avg sold price|Avg listing price/i);
+    lines.push('SUMMARY ' + (i >= 0 ? all.slice(Math.max(0, i - 200), i + 900) : 'not found'));
     return lines.join('\n');
   }
   chrome.runtime.onMessage.addListener((msg, sender, reply) => {
