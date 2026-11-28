@@ -1,14 +1,6 @@
 {
  "items": [
   {
-   "id": "br-1128-01",
-   "query": "Coogi sweater",
-   "condition": "used",
-   "item": "Coogi (C, Clothing)",
-   "batch": "C video picks 11-28",
-   "days": 90
-  },
-  {
    "id": "br-1128-02",
    "query": "Champion reverse weave sweatshirt",
    "condition": "used",
