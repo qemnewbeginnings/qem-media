@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Terapeak Price Check",
+  "version": "1.0.0",
+  "description": "Type an item, click Look it up: shows eBay Terapeak sold prices, sell-through and top sales. Uses no AI. Read-only.",
+  "permissions": ["storage", "tabs", "scripting"],
+  "host_permissions": ["https://www.ebay.com/*", "https://docs.google.com/*"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "Terapeak Price Check" },
+  "content_scripts": [{ "matches": ["https://www.ebay.com/sh/research*"], "js": ["content.js"], "run_at": "document_idle" }]
+}

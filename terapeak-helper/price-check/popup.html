@@ -1,0 +1,16 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{font:15px system-ui;width:330px;margin:14px;color:#222}
+h1{font-size:17px;margin:0 0 10px;color:#b0306f}
+input[type=text]{width:95%;font-size:15px;padding:6px}
+button{font-size:15px;padding:9px 12px;margin:6px 6px 0 0;border-radius:6px;border:1px solid #888;cursor:pointer;background:#fff}
+.main{background:#b0306f;color:#fff;border-color:#b0306f}
+.small{font-size:13px;color:#555}
+</style></head><body>
+<h1>🔎 Terapeak Price Check</h1>
+<input type="text" id="q" placeholder="brand + item, e.g. Lucky Brand jeans">
+<div style="margin-top:8px"><input type="text" id="sku" placeholder="sticker # (optional)" style="width:45%"></div>
+<div class="small" style="margin:8px 0"><label><input type="radio" name="c" value="used" checked> Used</label> <label><input type="radio" name="c" value="new"> New</label> <label><input type="radio" name="c" value=""> Any</label></div>
+<button id="go" class="main">Look it up</button><button id="past">Past look-ups</button>
+<div id="status" class="small" style="margin-top:10px"></div>
+<div class="small" style="margin-top:8px">Needs you signed in to eBay in Chrome. Uses no AI.</div>
+<script src="popup.js"></script></body></html>
