@@ -114,7 +114,10 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     if (msg.type === 'checkNow') { await checkQueue(true); reply({}); return; }
     if (msg.type === 'tryOne') {
       const it = { id: 'kim-' + Date.now(), query: msg.query, condition: msg.condition || '', sku: msg.sku || '', source: 'kim' };
-      await start([it], null, false); reply({}); return;
+      // Kim's own look-up goes first; anything Auto was doing carries on after it. Keeps today's count.
+      const s = await chrome.storage.local.get(['queue', 'running', 'day', 'auto_run']);
+      const day = (s.day && s.day.date === today()) ? s.day : null;
+      await start([it].concat(s.running ? (s.queue || []) : []), day, s.running ? !!s.auto_run : false); reply({}); return;
     }
     if (msg.type === 'setAuto') { await chrome.storage.local.set({ auto: !!msg.on }); ensureAlarm(); if (msg.on) await checkQueue(false); reply({}); return; }
     if (msg.type === 'setStatus') { await setStatus(msg.text); reply({}); return; }
