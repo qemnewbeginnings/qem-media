@@ -1,1 +1,212 @@
-{"items": []}
+{
+ "items": [
+  {
+   "id": "br-1128-01",
+   "query": "Coogi sweater",
+   "condition": "used",
+   "item": "Coogi (C, Clothing)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-02",
+   "query": "Champion reverse weave sweatshirt",
+   "condition": "used",
+   "item": "Champion (C, Clothing)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-03",
+   "query": "Cabi top",
+   "condition": "used",
+   "item": "Cabi (C, Clothing)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-04",
+   "query": "Columbia PFG shirt",
+   "condition": "used",
+   "item": "Columbia (C, Clothing)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-05",
+   "query": "Chico's top",
+   "condition": "used",
+   "item": "Chico's (C, Leave behind)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-06",
+   "query": "Christian Louboutin pumps",
+   "condition": "used",
+   "item": "Christian Louboutin (C, Shoes)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-07",
+   "query": "Clarks shoes women",
+   "condition": "used",
+   "item": "Clarks (C, Shoes)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-08",
+   "query": "Chaco sandals",
+   "condition": "used",
+   "item": "Chaco (C, Shoes)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-09",
+   "query": "Cole Haan shoes",
+   "condition": "used",
+   "item": "Cole Haan (C, Shoes)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-10",
+   "query": "Converse Chuck Taylor",
+   "condition": "used",
+   "item": "Converse (C, Shoes)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-11",
+   "query": "Chinese Laundry shoes",
+   "condition": "used",
+   "item": "Chinese Laundry (C, Leave behind)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-12",
+   "query": "Coach leather handbag",
+   "condition": "used",
+   "item": "Coach (C, Handbags)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-13",
+   "query": "Chloe handbag",
+   "condition": "used",
+   "item": "Chloe (C, Handbags)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-14",
+   "query": "Clare V clutch",
+   "condition": "used",
+   "item": "Clare V. (C, Handbags)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-15",
+   "query": "Cole Haan handbag",
+   "condition": "used",
+   "item": "Cole Haan (C, Handbags)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-16",
+   "query": "Charming Charlie purse",
+   "condition": "used",
+   "item": "Charming Charlie (C, Leave behind)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-17",
+   "query": "Citizens of Humanity jeans",
+   "condition": "used",
+   "item": "Citizens of Humanity (C, Jeans)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-18",
+   "query": "Carhartt double knee pants",
+   "condition": "used",
+   "item": "Carhartt (C, Jeans)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-19",
+   "query": "Cruel Girl jeans",
+   "condition": "used",
+   "item": "Cruel Girl (C, Jeans)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-20",
+   "query": "Cinch jeans",
+   "condition": "used",
+   "item": "Cinch (C, Jeans)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-21",
+   "query": "Cato jeans",
+   "condition": "used",
+   "item": "Cato (C, Leave behind)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-22",
+   "query": "Canada Goose parka",
+   "condition": "used",
+   "item": "Canada Goose (C, Coats)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-23",
+   "query": "Carhartt jacket",
+   "condition": "used",
+   "item": "Carhartt (C, Coats)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-24",
+   "query": "Columbia jacket women",
+   "condition": "used",
+   "item": "Columbia (C, Coats)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-25",
+   "query": "Cole Haan coat",
+   "condition": "used",
+   "item": "Cole Haan (C, Coats)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  },
+  {
+   "id": "br-1128-26",
+   "query": "Chaps coat",
+   "condition": "used",
+   "item": "Chaps (C, Leave behind)",
+   "batch": "C video picks 11-28",
+   "days": 90
+  }
+ ]
+}
