@@ -1,62 +1,6 @@
 {
  "items": [
   {
-   "id": "br-1128-02",
-   "query": "Champion reverse weave sweatshirt",
-   "condition": "used",
-   "item": "Champion (C, Clothing)",
-   "batch": "C video picks 11-28",
-   "days": 90
-  },
-  {
-   "id": "br-1128-03",
-   "query": "Cabi top",
-   "condition": "used",
-   "item": "Cabi (C, Clothing)",
-   "batch": "C video picks 11-28",
-   "days": 90
-  },
-  {
-   "id": "br-1128-04",
-   "query": "Columbia PFG shirt",
-   "condition": "used",
-   "item": "Columbia (C, Clothing)",
-   "batch": "C video picks 11-28",
-   "days": 90
-  },
-  {
-   "id": "br-1128-05",
-   "query": "Chico's top",
-   "condition": "used",
-   "item": "Chico's (C, Leave behind)",
-   "batch": "C video picks 11-28",
-   "days": 90
-  },
-  {
-   "id": "br-1128-06",
-   "query": "Christian Louboutin pumps",
-   "condition": "used",
-   "item": "Christian Louboutin (C, Shoes)",
-   "batch": "C video picks 11-28",
-   "days": 90
-  },
-  {
-   "id": "br-1128-07",
-   "query": "Clarks shoes women",
-   "condition": "used",
-   "item": "Clarks (C, Shoes)",
-   "batch": "C video picks 11-28",
-   "days": 90
-  },
-  {
-   "id": "br-1128-08",
-   "query": "Chaco sandals",
-   "condition": "used",
-   "item": "Chaco (C, Shoes)",
-   "batch": "C video picks 11-28",
-   "days": 90
-  },
-  {
    "id": "br-1128-09",
    "query": "Cole Haan shoes",
    "condition": "used",
