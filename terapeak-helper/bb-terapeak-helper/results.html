@@ -1,8 +1,32 @@
-<!doctype html><html><head><meta charset="utf-8"><title>BootyBoots Price Check</title><style>
-body{font:16px system-ui;max-width:900px;margin:20px auto;padding:0 16px;color:#222;background:#fafafa}
-h1{color:#b0306f;font-size:22px}.card{background:#fff;border-radius:10px;padding:16px;margin:14px 0;box-shadow:0 1px 4px #0002}
-.q{font-size:20px;font-weight:700}.grid{display:flex;flex-wrap:wrap;gap:18px;margin:12px 0}
-.m b{display:block;font-size:22px}.m span{font-size:13px;color:#666}
-table{border-collapse:collapse;width:100%;font-size:14px}td{padding:5px;border-top:1px solid #eee}a{color:#1a5fb4}
-.old{opacity:.85}.bad{color:#b00020}
-</style></head><body><h1>🔎 BootyBoots Price Check</h1><div id="out"></div><script src="results.js"></script></body></html>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BootyBoots Price Check</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#FFF6EE;--surface:#FFFFFF;--ink:#1E1420;--muted:#6E5A72;--line:#F1DCE6;--green:#D81E6E;--blue:#8E2DB8;--chip:#FBEAF2;--onaccent:#FFFFFF;--warn:#B45309;
+--f-display:"Fredoka",system-ui,sans-serif;--f-body:"Atkinson Hyperlegible",system-ui,-apple-system,sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;margin:0;padding:20px 16px}
+main{max-width:980px;margin:0 auto;display:grid;gap:16px}
+h2{font-family:var(--f-display);font-weight:600;font-size:26px;margin:0}
+h3{font-family:var(--f-display);font-weight:600;font-size:18px;margin:0}
+.note{font-size:14px;color:var(--muted)}
+.pc{background:var(--surface);border:2.5px solid var(--blue);box-shadow:0 3px 12px rgba(0,0,0,.18);border-radius:14px;padding:14px;display:grid;gap:10px}
+.pc.old{border-width:1.5px;box-shadow:none}
+.pc .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:640px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.pcwhy{width:260px;font-size:13.5px;display:grid;gap:6px}
+.tag{font-size:13.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--chip);color:var(--ink);justify-self:start}
+.tag.pay{background:var(--green);color:var(--onaccent)}
+.comps{display:grid;gap:6px;margin-top:4px}
+.comps a{text-align:left;font:14px var(--f-body);color:var(--blue);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-decoration:none}
+.summary{font-size:15px;border-left:3px solid var(--green);padding-left:12px}
+.problem{font-size:15px;border-left:3px solid var(--warn);padding-left:12px}
+@media (max-width:600px){.pc .tablewrap{border:0;background:none;overflow:visible}table{min-width:0}thead{display:none}tr,td{display:block;border:0;padding:0}
+td{display:grid;grid-template-columns:118px minmax(0,1fr);gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+td::before{content:attr(data-l);font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+td[data-l="#"]{display:none}td[data-l="Why"]{grid-template-columns:1fr;border-bottom:0}.pcwhy{width:auto}}
+</style></head><body><main>
+<div><h2>Price check</h2><p class="note">Christina's answers, newest first. This one is on your Command Center too. Nothing here goes into your inventory.</p></div>
+<div id="out"></div></main><script src="results.js"></script></body></html>

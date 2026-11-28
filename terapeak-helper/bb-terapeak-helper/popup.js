@@ -13,8 +13,8 @@ async function refresh() {
 $('try').onclick = () => {
   const q = $('q').value.trim(); if (!q) { $('status').textContent = 'Type some words first.'; return; }
   const c = document.querySelector('input[name=c]:checked').value;
-  $('status').textContent = 'Looking up "' + q + '"… the answer opens in a new tab in about a minute.';
-  chrome.runtime.sendMessage({ type: 'tryOne', query: q, condition: c, sku: $('sku').value.trim() });
+  $('status').textContent = 'Looking up "' + q + '"… Christina\'s price check opens in a new tab in about a minute.';
+  chrome.runtime.sendMessage({ type: 'tryOne', query: q, condition: c, sku: $('sku').value.trim(), heavy: $('heavy').checked });
 };
 $('scout').onclick = async () => {
   const [t] = await chrome.tabs.query({ active: true, currentWindow: true });

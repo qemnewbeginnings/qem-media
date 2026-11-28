@@ -1,6 +1,7 @@
 // BootyBoots Terapeak Helper - background. Reads Christina's Terapeak list from Kim's Google web app,
 // looks each one up on Terapeak (sold tab, then active tab) in its own window, and sends results back. Read-only.
 // The web app link is pasted once in the pop-up (Settings). No code editing needed.
+importScripts('christina.js');
 const CHECK_MIN = 1;  // D 11-27: check the list every minute so look-ups start right away
 const GAP_MIN = 40, GAP_MAX = 100;   // seconds between look-ups
 const DEFAULT_CAP = 60;              // look-ups a day
@@ -87,11 +88,11 @@ async function finish(row, sender) {
     upd.day = { date: day.date, n: day.n + 1 };
   } else upd.failedIds = (s.failedIds || []).concat([row.id]).slice(-2000);
   if (row.source === 'kim') {
+    try { row.card = christinaCard(row, !!row.heavy); } catch (e) { row.card = null; }
     const h = await chrome.storage.local.get(['history']);
     const num = v => parseFloat(String(v || '').replace(/[^\d.]/g, '')) || 0;
     const sm = row.sold || {};
-    const view = { ...row, median: row.soldMedianTop, totalSold: sm.totalSold || (row.soldEstimate ? 'about ' + row.soldEstimate : '') };
-    upd.history = [view].concat(h.history || []).slice(0, 30);
+    upd.history = [{ id: row.id, at: row.at, card: row.card }].concat(h.history || []).slice(0, 30);
   }
   await chrome.storage.local.set(upd);
   await report(row);
@@ -113,7 +114,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   (async () => {
     if (msg.type === 'checkNow') { await checkQueue(true); reply({}); return; }
     if (msg.type === 'tryOne') {
-      const it = { id: 'kim-' + Date.now(), query: msg.query, condition: msg.condition || '', sku: msg.sku || '', source: 'kim' };
+      const it = { id: 'kim-' + Date.now(), query: msg.query, condition: msg.condition || '', sku: msg.sku || '', heavy: !!msg.heavy, source: 'kim' };
       // Kim's own look-up goes first; anything Auto was doing carries on after it. Keeps today's count.
       const s = await chrome.storage.local.get(['queue', 'running', 'day', 'auto_run']);
       const day = (s.day && s.day.date === today()) ? s.day : null;
@@ -131,7 +132,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       const s = await chrome.storage.local.get(['queue', 'cur']);
       const it = (s.queue || [])[0];
       if (!it || !s.cur || s.cur.id !== it.id) { reply({}); return; }
-      const base = { id: it.id, source: it.source || 'christina', sku: it.sku || '', item: it.item || '', batch: it.batch || '', query: it.query,
+      const base = { id: it.id, source: it.source || 'christina', heavy: !!it.heavy, sku: it.sku || '', item: it.item || '', batch: it.batch || '', query: it.query,
         condition: it.condition || '', days: it.days || 90, at: new Date().toISOString() };
       if (!msg.ok) { await finish({ ...base, ok: false, fatal: !!msg.fatal, step: s.cur.tab, note: msg.note }, sender); reply({}); return; }
       if (s.cur.tab === 'SOLD') {
