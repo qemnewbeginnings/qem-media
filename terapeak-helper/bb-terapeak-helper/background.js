@@ -1,7 +1,7 @@
 // BootyBoots Terapeak Helper - background. Reads Christina's Terapeak list from Kim's Google web app,
 // looks each one up on Terapeak (sold tab, then active tab) in its own window, and sends results back. Read-only.
 // The web app link is pasted once in the pop-up (Settings). No code editing needed.
-const CHECK_MIN = 15;
+const CHECK_MIN = 1;  // D 11-27: check the list every minute so look-ups start right away
 const GAP_MIN = 40, GAP_MAX = 100;   // seconds between look-ups
 const DEFAULT_CAP = 60;              // look-ups a day
 const OPEN_FROM = 7*60, OPEN_TO = 22*60; // 7am to 10pm
