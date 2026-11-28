@@ -7,9 +7,9 @@ const CHECK_MIN = 15;
 const GAP_MIN = 40, GAP_MAX = 100;   // seconds between look-ups, so eBay sees a normal pace
 const DEFAULT_CAP = 80;              // look-ups a day (Christina + 25 brands)
 const OPEN_FROM = 7*60, OPEN_TO = 22*60; // 7am to 10pm
-// Google Form "QEM Terapeak Results" (one paragraph question). Empty = no report yet (Copy report still works).
-const FORM_POST = '';
-const FORM_ENTRY = '';
+// Google Form "QEM Terapeak Results" (one paragraph question) -> sheet "QEM Terapeak Results (Responses)" 1ainVsVy3g_ASEJ3Nkg6VWSSMa2WPFIZM-lMMzUoocjY.
+const FORM_POST = 'https://docs.google.com/forms/d/e/1FAIpQLSe1Xrqewr9kJiN37-hsoSxxIWZtXSiWVkSJUqs6qDd87EYNZg/formResponse';
+const FORM_ENTRY = 'entry.1035360603';
 
 function researchUrl(it, tab) {
   const end = Date.now(), days = it.days || 90, start = end - days * 864e5;
@@ -141,6 +141,8 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       const num = v => parseFloat(String(v || '').replace(/[^\d.]/g, '')) || 0;
       const sm = sold.metrics || {};
       // If Total sold didn't show, estimate it: eBay's sell-through = sold / active listings.
+      // Terapeak has no Total sold box: add up each sold listing's own Total sold column (page 1, up to 50 listings).
+      if (!sm.totalSold && sold.qtySum) sm.totalSold = String(sold.qtySum) + (sold.qtyRows >= 50 ? '+' : '');
       const soldEstimate = (!sm.totalSold && sm.sellThrough && (act.metrics || {}).totalActive)
         ? Math.round(num(sm.sellThrough) / 100 * num(act.metrics.totalActive)) : null;
       const row = { ...base, ok: true, sold: sm, soldEstimate, soldMedianTop: median, active: act.metrics || {}, soldListings: sold.rows || [],

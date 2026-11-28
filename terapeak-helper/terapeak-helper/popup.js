@@ -33,7 +33,7 @@ $('clearbad').onclick = async () => { await chrome.storage.local.set({ failedIds
 $('copy').onclick = async () => {
   const { log = [], status = '' } = await chrome.storage.local.get(['log', 'status']);
   const lines = log.slice(-5).map(r => r.ok
-    ? `${r.at} ${r.sku} "${r.query}" (${r.condition || 'any'}) SOLD ${JSON.stringify(r.sold)} ACTIVE ${JSON.stringify(r.active)} TOP ${JSON.stringify((r.soldListings || []).slice(0, 5))}`
+    ? `${r.at} ${r.sku} "${r.query}" (${r.condition || 'any'}) SOLD ${JSON.stringify(r.sold)} EST ${r.soldEstimate} MEDIAN ${r.soldMedianTop} ACTIVE ${JSON.stringify(r.active)} TOP ${JSON.stringify((r.soldListings || []).slice(0, 5))}`
     : `${r.at} ${r.sku} "${r.query}" PROBLEM [${r.step}] ${r.note}`);
   await navigator.clipboard.writeText('TERAPEAK REPORT\nstatus: ' + status + '\n' + lines.join('\n'));
   $('status').textContent = 'Report copied. Paste it in the Terapeak thread.';
